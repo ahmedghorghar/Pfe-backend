@@ -1,7 +1,7 @@
-// backend/logic/contactsLogic.js
+/* // backend/logic/contactsLogic.js
 
 // Import the Contact model
-const CONTACT = require('../model/contactsModel');
+const CONTACT = require('../models/contactsModel');
 
 // Export functions related to contact logic
 module.exports = {
@@ -40,3 +40,4 @@ module.exports = {
         }
     }
 }
+ */

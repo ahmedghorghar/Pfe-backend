@@ -31,6 +31,11 @@ const authSchema = new Schema(
       type: String,
       default: "",
     },
+    approvalStatus: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
   },
   {
     timestamps: true,

@@ -1,6 +1,6 @@
 // backend/logic/Profile.js
 
-const AuthModel = require("../model/AuthModel");
+const AuthModel = require("../models/AuthModel");
 
 
 const updateProfileImage = async (req, res) => {

@@ -1,4 +1,4 @@
-// backend/route/contactsRouter.js
+/* // backend/route/contactsRouter.js
 
 // Import required modules
 const express = require('express');
@@ -13,3 +13,4 @@ router.get('/', getContact); // Call getContact function when GET request is mad
 
 // Export the router
 module.exports = router;
+ */

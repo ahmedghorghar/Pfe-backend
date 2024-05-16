@@ -1,4 +1,4 @@
-// backend/model/contactModel.js
+/* // backend/model/contactModel.js
 
 // Import the mongoose module
 const mongoose = require('mongoose');
@@ -11,3 +11,4 @@ const contactSchema = new mongoose.Schema({
 
 // Export the mongoose model for contacts
 module.exports = mongoose.model('CONTACTS', contactSchema);
+ */
