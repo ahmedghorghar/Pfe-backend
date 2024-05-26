@@ -15,6 +15,7 @@ const guestRoute = require("./route/guestRoute");
 const uploadRouter = require("./route/uploadRoutes");
 const bookingRouter = require("./route/bookingRoute");
 const adminRouter = require("./route/admin.route");
+const Notification = require("./route/notification_routes");
 const db = require("./config/db");
 require("dotenv").config();
 
@@ -44,6 +45,7 @@ app.use("/guests", guestRoute); // Use the guest routes
 app.use("/uploads", uploadRouter);
 app.use("/booking", bookingRouter);
 app.use("/admin", adminRouter);
+app.use("/notification", Notification);
 
 
 // Error Handling Middleware

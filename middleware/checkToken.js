@@ -1,7 +1,6 @@
 // backend/middleware/checkToken.js
 
 const jwt = require("jsonwebtoken");
-
 const verifyUser = require("./verify_user");
 const verifyAgency = require("./verify_agency");
 
@@ -37,9 +36,6 @@ const checkToken = (req, res, next) => {
         return res.status(401).json({ message: "Invalid token" });
       }
       req.decoded = decoded;
-      // console.log("req.decoded:", req.decoded);
-      // console.log("Authentication token verified successfully");
-      // Call the appropriate authentication middleware
       middleware(req, res, next);
     });
   } catch (error) {

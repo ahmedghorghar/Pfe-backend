@@ -14,5 +14,7 @@ router.delete('/delete/:id', chekToken, placeController.deletePlaceById);
 // Public routes accessible to all users
 router.get('/get-places/:agencyId', chekToken, placeController.getAllPlaces);
 router.get('/places/:id', placeController.getPlaceById);
+router.get('/all-places', placeController.getAllPlacesPublic); // Add this line
+
 
 module.exports = router;

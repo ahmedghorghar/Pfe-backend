@@ -26,6 +26,7 @@ const authSchema = new Schema(
     agencyName: { type: String }, // For agencies
     location: { type: String }, // For agencies
     description: { type: String }, // For agencies
+    phoneNumber: { type: String },
     verificationCode: { type: String, unique: true }, // Add verificationCode field
     img: {
       type: String,

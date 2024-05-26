@@ -6,7 +6,7 @@ const bookingSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "AUTH",
       required: true,
     },
     placeId: {
@@ -16,7 +16,7 @@ const bookingSchema = new mongoose.Schema(
     },
     agencyId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Agency",
+      ref: "AUTH",
       required: true,
     },
     visitDate: {

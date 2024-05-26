@@ -16,16 +16,16 @@ exports.listUsers = async (req, res) => {
         res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 };
-
 exports.listAgencies = async (req, res) => {
     try {
-        // Query the database to find all agencies
-        const agencies = await User.find({ type: 'agency' }).select('agencyName email location createdAt');
-
-        // Send the response with agency details
-        res.status(200).json({ success: true, agencies });
+      // Query the database to find all agencies
+      const agencies = await User.find({ type: 'agency' }).select('agencyName email phoneNumber location createdAt');
+  
+      // Send the response with agency details
+      res.status(200).json({ success: true, agencies });
     } catch (error) {
-        console.error('Error listing agencies:', error);
-        res.status(500).json({ success: false, message: 'Internal Server Error' });
+      console.error('Error listing agencies:', error);
+      res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
-};
+  };
+  

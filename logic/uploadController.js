@@ -9,27 +9,31 @@ const createPlace = async (req, res) => {
   try {
     // Extract required fields
     const {
-      // agencyId,
-      placeName,
-      photos,
-      visitDate,
-      price,
-      description,
-      duration,
-      tags,
-      accessibility,
+        title,
+        placeName,
+        StartEndPoint,
+        photos,
+        visitDate,
+        price,
+        description,
+        duration,
+        HotelName,
+        CheckInOut,
+        accessibility,
+        phoneNumber
     } = req.body;
 
     // Check if all required fields are present
     if (
+      !title || 
       !placeName ||
+      !StartEndPoint ||
       !photos ||
       !visitDate ||
       !price ||
       !description ||
       !duration ||
-      !tags ||
-      !accessibility
+      !phoneNumber
     ) {
       return res
         .status(400)
@@ -39,33 +43,33 @@ const createPlace = async (req, res) => {
     // Find the agency ID from the logged-in user
     const { id: agencyId } = req.decoded;
 
-   /*  if (!agency) {
-      return res
-        .status(404)
-        .json({ error: "Agency not found with the provided id" });
-    } */
     // Create new Place object
     const place = new Place({
+      title,
       placeName,
+      StartEndPoint,
       photos,
       visitDate,
       price,
       description,
       duration,
-      tags,
+      HotelName,
+      CheckInOut,
       accessibility,
+      phoneNumber, // Ensure phoneNumber is included
       agencyId,
     });
+
     // Save the place to the database
     await place.save();
     res.status(201).send(place);
   } catch (error) {
-  if (error.message.includes("_id")) {
-    res.status(400).json({ message: "Authorization error: Could not identify logged-in agency." });
-  } else {
-    res.status(400).json({ message: error.message || "Bad Request" });
+    if (error.message.includes("_id")) {
+      res.status(400).json({ message: "Authorization error: Could not identify logged-in agency." });
+    } else {
+      res.status(400).json({ message: error.message || "Bad Request" });
+    }
   }
-}
 }
 
 // Get all places
@@ -105,19 +109,24 @@ const getPlaceById = async (req, res) => {
   }
 };
 
+
 // Update a place by ID
 const updatePlaceById = async (req, res) => {
   try {
     const updates = Object.keys(req.body);
     const allowedUpdates = [
+      "title",
       "placeName",
+      "StartEndPoint",
       "photos",
       "visitDate",
       "price",
       "description",
       "duration",
-      "tags",
+      "HotelName",
+      "CheckInOut",
       "accessibility",
+      "phoneNumber",
     ];
     const isValidOperation = updates.every((update) =>
       allowedUpdates.includes(update)
@@ -154,6 +163,24 @@ const deletePlaceById = async (req, res) => {
     res.status(500).send(error);
   }
 };
+// Get all places (public)
+const getAllPlacesPublic = async (req, res) => {
+  try {
+    // Fetch all places without filtering by agencyId
+    const places = await Place.find();
+
+    // Check if any places were found
+    if (!places || places.length === 0) {
+      return res.status(404).json({ message: "No places found" });
+    }
+
+    // Return the places found
+    res.status(200).json(places);
+  } catch (error) {
+    console.error("Error fetching places:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 module.exports = {
   createPlace,
@@ -161,4 +188,5 @@ module.exports = {
   getPlaceById,
   updatePlaceById,
   deletePlaceById,
+  getAllPlacesPublic, // Add this line
 };

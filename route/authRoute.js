@@ -3,7 +3,7 @@
 // Import required modules
 const express = require("express");
 const router = express.Router();
-const { signup, login } = require("../logic/authLogic"); // Import signup and login functions
+const { signup, login, googleLogin } = require("../logic/authLogic"); // Import signup and login functions
 const { body, validationResult } = require("express-validator"); // Import body function for validation
 const PasswordReset = require("../logic/passwordResetLogic");
 const jwt = require("jsonwebtoken");
@@ -22,10 +22,12 @@ router.post(
     body("password")
       .isLength({ min: 8 })
       .withMessage("Password must be at least 8 characters long"),
-      // Add validation for user type
-      body("type")
-      .isIn(["user", "agency"])
-      .withMessage("Invalid user type"), // Validate user type
+    // Add validation for user type
+    body("type").isIn(["user", "agency"]).withMessage("Invalid user type"), // Validate user type
+    body("phoneNumber")
+      .optional()
+      .isMobilePhone()
+      .withMessage("Invalid phone number"),
   ],
   async (req, res) => {
     // Use async for cleaner handling of validation errors
@@ -73,6 +75,15 @@ router.post(
     }
   }
 );
+
+router.post("/google-login", async (req, res) => {
+  try {
+    await googleLogin(req, res);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 const passwordResetInstance = new PasswordReset();
 // Route for sending a password link

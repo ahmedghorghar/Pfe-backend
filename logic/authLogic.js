@@ -5,9 +5,23 @@ const AUTH = require("../models/AuthModel"); // Correct import statement for the
 const jwt = require("jsonwebtoken"); // Importing jsonwebtoken for token generation
 const { validationResult } = require("express-validator"); // Importing validationResult for request validation
 const bcrypt = require("bcrypt");
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 async function comparePassword(user, enteredPassword) {
   return await bcrypt.compare(enteredPassword, user.password);
+}
+async function checkEmailExists(email) {
+  return await AUTH.findOne({ email: email });
+}
+
+async function verifyGoogleToken(token) {
+  const ticket = await client.verifyIdToken({
+    idToken: token,
+    audience: process.env.GOOGLE_CLIENT_ID,
+  });
+  const payload = ticket.getPayload();
+  return payload;
 }
 
 // Exporting functions related to authentication logic
@@ -21,11 +35,11 @@ module.exports = {
         return res.status(400).json({ errors: errors.array() }); // Return validation errors if any
       }
 
-      // Check if user with provided email already exists
-      const user = await AUTH.findOne({ email: req.body.email });
-      if (user) {
-        return res.status(400).json({ message: "This email is already used" }); // Return error if email is already in use
-      }
+     // Check if user with provided email already exists
+     const user = await checkEmailExists(req.body.email);
+     if (user) {
+       return res.status(400).json({ message: "This email is already used" }); // Return error if email is already in use
+     }
 
       // Create a new user object based on the type
       let newUser;
@@ -46,6 +60,7 @@ module.exports = {
           type: req.body.type,
           location: req.body.location,
           description: req.body.description,
+          phoneNumber: req.body.phoneNumber,
           approvalStatus: 'pending'
 
         });
@@ -127,4 +142,46 @@ module.exports = {
       res.status(500).json({ message: "Internal Server Error" }); // Return internal server error if an exception occurs
     }
   },
+  googleLogin: async (req, res) => {
+    try {
+      const { token } = req.body;
+      const googleUser = await verifyGoogleToken(token);
+      const email = googleUser.email;
+
+      let user = await checkEmailExists(email);
+      if (!user) {
+        user = new AUTH({
+          email: email,
+          type: "user",
+          name: googleUser.name,
+        });
+        await user.save();
+      }
+
+      const payload = {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        type: user.type,
+      };
+
+      const jwtToken = jwt.sign(
+        payload,
+        process.env.JWT_SECRET_USER
+      );
+
+      res.status(200).json({
+        message: "User logged in with Google",
+        id: user.id,
+        type: user.type,
+        email: user.email,
+        name: user.name,
+        token: jwtToken,
+      });
+    } catch (error) {
+      console.error("Error in Google login:", error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  },
+
 };

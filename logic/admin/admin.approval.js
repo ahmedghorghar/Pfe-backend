@@ -7,13 +7,14 @@ exports.pendingAgencyRegistrations = async (req, res) => {
     const pendingRegistrations = await AUTH.find({
       type: "agency",
       approvalStatus: "pending",
-    });
+    }).select('agencyName email phoneNumber location');
     res.status(200).json({ pendingRegistrations });
   } catch (error) {
     console.error("Error fetching pending agency registrations:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 exports.approveAgencyRegistration = async (req, res) => {
   try {
