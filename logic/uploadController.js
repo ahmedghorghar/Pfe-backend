@@ -1,7 +1,8 @@
 // backend/logic/uploadController.js
 
 const Place = require("../models/upload-model");
-const Auth = require("../models/AuthModel");
+const AUTH = require("../models/AuthModel"); // Ensure correct path and model name
+
 
 
 // Create a new place
@@ -75,39 +76,56 @@ const createPlace = async (req, res) => {
 // Get all places
 const getAllPlaces = async (req, res) => {
   try {
-    // Extract the agency ID from the request parameters or query string
-    const { agencyId } = req.params; // Assuming agencyId is in the route parameters
+    const { agencyId } = req.params;
 
-    // Find all places associated with the specified agency ID
-    const places = await Place.find({ agencyId });
+    const places = await Place.find({ agencyId }).populate('agencyId', 'agencyName');
 
-    // Check if any places were found
     if (!places || places.length === 0) {
       return res.status(404).json({ message: "No places found for the specified agency" });
     }
 
-    // Return the places found
-    res.status(200).json(places);
+    const transformedPlaces = places.map(place => ({
+      _id: place._id,
+      agencyId: place.agencyId._id,
+      agencyName: place.agencyId.agencyName,
+      title: place.title,
+      placeName: place.placeName,
+      StartEndPoint: place.StartEndPoint,
+      photos: place.photos,
+      visitDate: place.visitDate,
+      price: place.price,
+      description: place.description,
+      duration: place.duration,
+      HotelName: place.HotelName,
+      CheckInOut: place.CheckInOut,
+      accessibility: place.accessibility,
+      phoneNumber: place.phoneNumber,
+      __v: place.__v
+    }));
+
+    res.status(200).json(transformedPlaces);
   } catch (error) {
-    // Handle any errors that occur during the process
     console.error("Error fetching places by agency ID:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
+
+
 // Get a specific place by ID
 const getPlaceById = async (req, res) => {
   try {
-    // Find the agency ID from the decoded token
-    const { id: agencyId } = req.decoded;
-
-    // Find all places associated with the agency ID
-    const places = await Place.find({ agencyId });
-    res.send(places);
+    const place = await Place.findById(req.params.id);
+    if (!place) {
+      return res.status(404).json({ message: 'Place not found' });
+    }
+    res.status(200).json(place);
   } catch (error) {
-    res.status(500).send(error);
+    console.error('Error fetching place by ID:', error); // Log the error
+    res.status(500).json({ message: 'Failed to fetch place', error: error.message });
   }
 };
+
 
 
 // Update a place by ID
@@ -163,19 +181,25 @@ const deletePlaceById = async (req, res) => {
     res.status(500).send(error);
   }
 };
-// Get all places (public)
+
 const getAllPlacesPublic = async (req, res) => {
   try {
-    // Fetch all places without filtering by agencyId
-    const places = await Place.find();
+    // Fetch all places and populate agency details
+    const places = await Place.find().populate('agencyId', 'agencyName'); // Populate only the 'name' field
 
     // Check if any places were found
     if (!places || places.length === 0) {
       return res.status(404).json({ message: "No places found" });
     }
 
-    // Return the places found
-    res.status(200).json(places);
+    // Map through places to include agencyName
+    const placesWithAgencyName = places.map(place => ({
+      ...place.toObject(),
+      agencyName: place.agencyId ? place.agencyId.agencyName : 'Unknown Agency',
+    }));
+
+    // Return the places with agencyName
+    res.status(200).json(placesWithAgencyName);
   } catch (error) {
     console.error("Error fetching places:", error);
     res.status(500).json({ error: "Internal Server Error" });

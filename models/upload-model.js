@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const placeSchema = new mongoose.Schema({
   agencyId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Auth', // Reference to the Agency model
+    ref: 'AUTH', // Reference to the Agency model
     required: true
   },
   title: {

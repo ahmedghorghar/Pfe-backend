@@ -1,7 +1,7 @@
 // logic/admin/admin.controller.js
 
 
-
+const AUTH = require('../../models/AuthModel')
 const Admin = require('../../models/admin.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -17,9 +17,9 @@ exports.generateAdminCredentials = async (req, res) => {
       return res.status(400).json({ message: 'Admin credentials already exist' });
     }
 
-    const password = 'MrabetLassade'; // Temporary password
-    const email = 'mbt.lass.dev@gmail.com';
-    
+      const password = 'MrabetLassade'; // Temporary password
+      const email = 'mbt.lass.dev@gmail.com';
+      
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, Number(process.env.BCRYPT_SALT));
 
@@ -39,6 +39,7 @@ exports.generateAdminCredentials = async (req, res) => {
 exports.adminLogin = async (req, res) => {
     try {
       const { email, password } = req.body;
+      console.log(email)
   
       // Find the admin by email
       const admin = await Admin.findOne({ email });
@@ -62,3 +63,25 @@ exports.adminLogin = async (req, res) => {
       return res.status(500).json({ message: 'Internal Server Error' });
     }
   };
+
+  /// Function to delete a user or agency
+exports.deleteUserOrAgency = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if the user/agency exists
+    const user = await AUTH.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User/Agency not found" });
+    }
+
+    // Delete the user/agency
+    await AUTH.deleteOne({ _id: id });
+
+    // Return success message
+    res.status(200).json({ message: "User/Agency deleted successfully" });
+  } catch (error) {
+    console.error("Error in deleteUserOrAgency:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};

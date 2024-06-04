@@ -6,71 +6,46 @@ const bookingLogic = require("../logic/bookingLogic");
 const { validateCreateBooking } = require("../validation/bookingValidation");
 const checkToken = require("../middleware/checkToken");
 const Booking = require("../models/booking");
-const Auth = require("../models/AuthModel");
-const Place = require("../models/upload-model");
+
 
 // Route to create a new booking
-router.post(
-  "/createBooking",
-  checkToken,
-  validateCreateBooking,
-  async (req, res) => {
-    try {
-      const userId = req.decoded.id; // Assuming user ID is stored in the request object after authentication
-      const { placeId, agencyId, visitDate } = req.body;
+router.post("/createBooking", checkToken, validateCreateBooking, async (req, res) => {
+  try {
+    const userId = req.decoded.id;
+    const { placeId, agencyId, visitDate, placeName, img, title, price, userName, userEmail } = req.body;
 
-      // Check if the user already has a booking for the specified date
-      const existingBooking = await Booking.findOne({
-        userId,
-        visitDate: {
-          $gte: new Date(new Date(visitDate).setUTCHours(0, 0, 0, 0)),
-          $lt: new Date(new Date(visitDate).setUTCHours(23, 59, 59, 999)),
-        },
-      });
-      if (existingBooking) {
-        return res
-          .status(400)
-          .json({ message: "User already has a booking for this date" });
-      }
+    const existingBooking = await Booking.findOne({
+      userId,
+      visitDate: {
+        $gte: new Date(new Date(visitDate).setUTCHours(0, 0, 0, 0)),
+        $lt: new Date(new Date(visitDate).setUTCHours(23, 59, 59, 999)),
+      },
+    });
 
-      // Fetch additional information about the user and place
-      const user = await Auth.findById(userId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      const place = await Place.findById(placeId);
-      if (!place) {
-        return res.status(404).json({ message: "Place not found" });
-      }
-      // Call the booking logic function to create a new booking
-      const booking = await bookingLogic.createBooking(
-        userId, // Pass the userId here
-        placeId,
-        agencyId,
-        visitDate
-      );
-      // Send success response
-      res.status(201).json({
-        message: "Booking created successfully",
-        userId: userId, // Corrected to use userId here
-        agencyId: agencyId,
-        bookingId: booking._id, // Include the booking ID in the response
-        placeId: booking.placeId, // Optionally include other relevant information
-        visitDate: booking.visitDate,
-        userName: user.name, // User's name
-        userEmail: user.email, // User's email
-        userImage: user.img, // User's image
-        placeName: place.placeName, // Place name
-        placeTitle: place.title, // Place title
-        placePrice: place.price, // Place price
-      });
-    } catch (error) {
-      console.error("Error creating booking:", error);
-      res.status(500).json({ message: "Internal Server Error" });
+    if (existingBooking) {
+      return res.status(400).json({ message: "User already has a booking for this date" });
     }
+
+    const booking = await bookingLogic.createBooking(userId, placeId, agencyId, visitDate, placeName, img, title, price, userName, userEmail);
+    res.status(201).json({
+      message: "Booking created successfully",
+      bookingId: booking._id,
+      placeId: booking.placeId,
+      visitDate: booking.visitDate,
+      userName: booking.userName,
+      userEmail: booking.userEmail,
+      userImage: booking.img,
+      placeName: booking.placeName,
+      placeTitle: booking.title,
+      placePrice: booking.price,
+    });
+  } catch (error) {
+    console.error("Error creating booking:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
-);
+});
+
+
 
 // Route to get all bookings for an agency
 router.get("/getAgencyBookings/:agencyId", checkToken, async (req, res) => {

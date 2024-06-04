@@ -13,7 +13,7 @@ const adminApproval = require('../logic/admin/admin.approval')
 // Route to generate unique admin credentials
 router.post('/generateCredentials', adminController.generateAdminCredentials);
 // Route for admin login
-router.post('/admin-login', adminAuthMiddleware, adminController.adminLogin);
+router.post('/admin-login', adminController.adminLogin);
 
 const adminPasswordReset = new AdminPasswordReset();
 router.post("/reset-password/send-code", adminPasswordReset.sendVerificationCode);
@@ -21,7 +21,7 @@ router.post("/reset-password/verify-code", adminPasswordReset.verifyResetCode);
 router.post("/reset-password/change-password", adminPasswordReset.changePassword);
 
 // Route to count the number 
-router.get('/count-guest', guest.GuestCounter);
+router.get('/count-guest',adminAuthMiddleware, guest.GuestCounter);
 router.get('/user-count', userManagementController.getUserCount);
 router.get('/agency-count', userManagementController.getAgencyCount);
 
@@ -34,5 +34,8 @@ router.get('/agencies', /* adminAuthMiddleware,  */userAgencyController.listAgen
 router.get('/pending-agency-registrations', adminApproval.pendingAgencyRegistrations)
 router.get('/registered/:id', adminApproval.approveAgencyRegistration)
 router.get('/reject-agency-registration/:id', adminApproval.rejectAgencyRegistration)
+
+// Route to delete a user or agency
+router.delete('/delete/:id', /* adminAuthMiddleware, */ adminController.deleteUserOrAgency);
 
 module.exports = router;

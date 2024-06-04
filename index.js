@@ -16,6 +16,7 @@ const uploadRouter = require("./route/uploadRoutes");
 const bookingRouter = require("./route/bookingRoute");
 const adminRouter = require("./route/admin.route");
 const Notification = require("./route/notification_routes");
+const chatRouter = require("./route/chatRoute"); // Import chat route
 const db = require("./config/db");
 require("dotenv").config();
 
@@ -46,6 +47,8 @@ app.use("/uploads", uploadRouter);
 app.use("/booking", bookingRouter);
 app.use("/admin", adminRouter);
 app.use("/notification", Notification);
+app.use("/chat", chatRouter); // Use the chat routes
+
 
 
 // Error Handling Middleware

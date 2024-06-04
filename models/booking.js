@@ -23,14 +23,36 @@ const bookingSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
-    // Add more fields as needed
     status: {
       type: String,
       enum: ["pending", "confirmed", "canceled"],
       default: "pending",
     },
+    placeName: {
+      type: String,
+      required: true,
+    },
+    img: {
+      type: String,
+      required: true,
+    },
+    title: {
+      type: String,
+      required: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+    },
+    userName: {
+      type: String,
+      required: true,
+    },
+    userEmail: {
+      type: String,
+      required: true,
+    },
   },
-
   { timestamps: true }
 );
 
